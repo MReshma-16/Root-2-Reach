@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'https://root-2-reach.onrender.com/api';
 let currentLang = 'en';
 
 const translations = {
