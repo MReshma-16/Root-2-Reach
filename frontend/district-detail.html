@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>District Details - Root 2 Reach</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Mukta+Malar:wght@400;600;800&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-text">Root 2 Reach</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" data-i18n="home">Home</a>
+            <a href="login.html" id="nav-login" data-i18n="login">Login</a>
+            <a href="register.html" id="nav-register" data-i18n="register">Register</a>
+            <a href="#" id="nav-dashboard" style="display:none;" data-i18n="dashboard">Dashboard</a>
+            <a href="#" id="nav-logout" style="display:none;" data-i18n="logout">Logout</a>
+        </div>
+        <div class="lang-switch">
+            <button id="lang-btn">தமிழ் | EN</button>
+        </div>
+    </nav>
+
+    <main class="container" style="margin-top: 40px; margin-bottom: 60px;">
+        <div id="district-container" style="display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start;">
+            <div style="flex: 1 1 50%; text-align: center; padding: 50px;">
+                Loading district...
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Root 2 Reach. <span data-i18n="footer_text">Preserving Heritage, Empowering Artisans.</span></p>
+    </footer>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        const districtProducts = {
+            'Kanchipuram': ['Kanchipuram Silk Saree', 'Silk Dhoti'],
+            'Karur': ['Cotton Bedspread', 'Moringa Products'],
+            'Madurai': ['Sungudi Saree', 'Jasmine'],
+            'Thanjavur': ['Thanjavur Painting', 'Thanjavur Art Plate', 'Thanjavur Doll'],
+            'Tirunelveli': ['Tirunelveli Halwa', 'Appalam', 'Palm Leaf Basket'],
+            'Kanyakumari': ['Palm Jaggery', 'Coconut Products', 'Fish Products'],
+            'Coimbatore': ['Wet Grinder', 'Coconut Products', 'Kora Saree'],
+            'Salem': ['Sago', 'Tapioca Products', 'Salem Silk']
+        };
+
+        const districtProductsTa = {
+            'Kanchipuram': ['காஞ்சிபுரம் பட்டு சேலை', 'பட்டு வேட்டி'],
+            'Karur': ['பருத்தி போர்வை', 'முருங்கை பொருட்கள்'],
+            'Madurai': ['சுங்குடி சேலை', 'மல்லிகை'],
+            'Thanjavur': ['தஞ்சாவூர் ஓவியம்', 'தஞ்சாவூர் கலைத் தட்டு', 'தஞ்சாவூர் பொம்மை'],
+            'Tirunelveli': ['திருநெல்வேலி அல்வா', 'அப்பளம்', 'பனை ஓலை கூடை'],
+            'Kanyakumari': ['பனை வெல்லம்', 'தேங்காய் பொருட்கள்', 'மீன் பொருட்கள்'],
+            'Coimbatore': ['மாவு அரைக்கும் இயந்திரம்', 'தேங்காய் பொருட்கள்', 'கோரா சேலை'],
+            'Salem': ['ஜவ்வரிசி', 'மரவள்ளி பொருட்கள்', 'சேலம் பட்டு']
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if(!id) {
+                document.getElementById('district-container').innerHTML = '<h2>District not found</h2>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/districts`);
+                const districts = await response.json();
+                const district = districts.find(d => d.id == id);
+
+                if(!district) {
+                    document.getElementById('district-container').innerHTML = '<h2>District not found</h2>';
+                    return;
+                }
+
+                // Initial render
+                renderDistrictDetails(district);
+
+                // Listen for language changes from app.js lang-btn
+                document.getElementById('lang-btn').addEventListener('click', () => {
+                    setTimeout(() => renderDistrictDetails(district), 50); // slight delay to allow currentLang to update
+                });
+
+            } catch(e) {
+                console.error(e);
+            }
+        });
+
+        function renderDistrictDetails(district) {
+            const lang = currentLang || 'en';
+            const name = lang === 'ta' ? district.name_ta : district.name_en;
+            const desc = lang === 'ta' ? district.description_ta : district.description_en;
+            const productsList = lang === 'ta' ? districtProductsTa[district.name_en] : districtProducts[district.name_en];
+            
+            const famousTitle = lang === 'ta' ? 'பிரபலமான பொருட்கள்' : 'Famous Products';
+            const exploreBtn = lang === 'ta' ? 'பொருட்களை ஆராய்க' : 'Explore Products';
+
+            let productsHtml = '';
+            if (productsList && productsList.length > 0) {
+                productsHtml = `
+                    <h3 style="color: var(--primary-color); margin-bottom: 15px; font-size: 1.5rem;">${famousTitle}</h3>
+                    <ul style="list-style: none; padding: 0; margin-bottom: 30px;">
+                        ${productsList.map(p => `
+                            <li style="padding: 10px 0; border-bottom: 1px solid #eee; display: flex; align-items: center;">
+                                <span style="color: var(--primary-color); margin-right: 10px;">✓</span>
+                                <span style="font-size: 1.1rem;">${p}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+            } else {
+                productsHtml = `<p style="color: #777;">Famous products list unavailable.</p>`;
+            }
+
+            const imgUrl = district.image_url || 'https://via.placeholder.com/800x600';
+            
+            document.getElementById('district-container').innerHTML = `
+                <div style="flex: 1 1 50%; min-width: 300px;">
+                    <img src="${imgUrl}" alt="${name}" style="width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); object-fit: cover; max-height: 500px;">
+                </div>
+                <div style="flex: 1 1 40%; min-width: 300px; padding-top: 20px;">
+                    <h1 style="font-size: 2.5rem; margin-bottom: 15px; color: #2C3E50;">${name}</h1>
+                    <p style="font-size: 1.2rem; color: #555; line-height: 1.6; margin-bottom: 40px;">${desc}</p>
+                    <div style="background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                        ${productsHtml}
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Root 2 Reach - Product Detail</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Mukta+Malar:wght@400;600;800&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-text">Root 2 Reach</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" data-i18n="home">Home</a>
+            <a href="login.html" id="nav-login" data-i18n="login">Login</a>
+            <a href="register.html" id="nav-register" data-i18n="register">Register</a>
+            <a href="#" id="nav-dashboard" style="display:none;" data-i18n="dashboard">Dashboard</a>
+            <a href="cart.html" id="nav-cart" style="display:none;">Cart <span class="cart-badge" id="cart-count">0</span></a>
+            <a href="#" id="nav-logout" style="display:none;" data-i18n="logout">Logout</a>
+        </div>
+        <div class="lang-switch">
+            <button id="lang-btn">தமிழ் | EN</button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div id="product-container" class="product-detail">
+            <!-- Populated via JS -->
+            <div style="text-align: center; width: 100%; padding: 50px;">Loading product...</div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Root 2 Reach. <span data-i18n="footer_text">Preserving Heritage, Empowering Artisans.</span></p>
+    </footer>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if(!id) {
+                document.getElementById('product-container').innerHTML = '<h2>Product not found</h2>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/products/${id}`);
+                const p = await response.json();
+
+                if(p.error) {
+                    document.getElementById('product-container').innerHTML = `<h2>${p.error}</h2>`;
+                    return;
+                }
+
+                const lang = localStorage.getItem('lang') || 'en';
+                const displayName = (lang === 'ta' && p.name_ta) ? p.name_ta : p.name;
+                const displayDesc = (lang === 'ta' && p.description_ta) ? p.description_ta : p.description;
+                const sellerLabel  = lang === 'ta' ? 'விற்பனையாளர் விவரங்கள்' : 'Seller Details';
+                const nameLabel    = lang === 'ta' ? 'பெயர்' : 'Name';
+                const bizLabel     = lang === 'ta' ? 'வியாபாரம்' : 'Business';
+                const addrLabel    = lang === 'ta' ? 'முகவரி' : 'Address';
+                const availLabel   = lang === 'ta' ? 'கையிருப்பு' : 'Availability';
+                const inStock      = lang === 'ta' ? 'கையிருப்பு உள்ளது' : 'In Stock';
+                const outStock     = lang === 'ta' ? 'கையிருப்பு இல்லை' : 'Out of Stock';
+                const otherSellers = lang === 'ta' ? 'இந்த பொருளை வழங்கும் பிற விற்பனையாளர்கள்' : 'Other Sellers offering this product';
+
+                const imgUrl = p.image_url || 'https://via.placeholder.com/600x400';
+                document.getElementById('product-container').innerHTML = `
+                    <div class="product-left">
+                        <img src="${imgUrl}" alt="${displayName}" class="product-detail-img">
+                    </div>
+                    <div class="product-info">
+                        <span class="badge badge-district">${p.district_name}</span>
+                        <span class="badge badge-cat">${p.category_name}</span>
+                        <h1>${displayName}</h1>
+                        <div class="price-tag">₹${p.price}</div>
+                        <p style="margin-bottom: 20px; font-size: 1.1rem; color: #555;">${displayDesc}</p>
+                        
+                        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                            <h4 style="margin-bottom: 10px; color: #333;">${sellerLabel}</h4>
+                            <p><strong>${nameLabel}:</strong> ${p.seller_name}</p>
+                            <p><strong>${bizLabel}:</strong> ${p.business_name || 'N/A'}</p>
+                            <p><strong>${addrLabel}:</strong> ${p.seller_address || 'N/A'}, ${p.seller_district}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <strong>${availLabel}:</strong> ${p.quantity > 0 ? `<span style="color:var(--success)">${inStock} (${p.quantity})</span>` : `<span style="color:var(--danger)">${outStock}</span>`}
+                        </div>
+                        
+                        <div class="quantity-selector" style="margin-bottom:20px;">
+                            <button onclick="changeQty(-1)">-</button>
+                            <input type="number" id="qty-input" value="1" min="1" max="${p.quantity}" readonly>
+                            <button onclick="changeQty(1)">+</button>
+                        </div>
+
+                        <div class="product-actions" id="action-buttons" style="margin-bottom:30px;">
+                            <!-- Populated based on login state -->
+                        </div>
+
+                        <div id="alternatives-section" style="margin-top: 30px; border-top: 1px solid #ddd; padding-top: 20px;">
+                            <h3 style="margin-bottom:15px; color:#2C3E50;">${otherSellers}</h3>
+                            <div id="alternatives-list">
+                                <p style="color:#777; font-size:0.9rem;">Checking for other sellers...</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Fetch other sellers
+                try {
+                    const altRes = await fetch(`${API_BASE}/products/${id}/alternatives`);
+                    const alternatives = await altRes.json();
+                    const altList = document.getElementById('alternatives-list');
+                    if (alternatives.length > 0) {
+                        altList.innerHTML = alternatives.map(alt => `
+                            <div style="display:flex; justify-content:space-between; align-items:center; background:#f9f9f9; padding:15px; border-radius:8px; border:1px solid #eee; margin-bottom:10px;">
+                                <div>
+                                    <strong style="color:var(--primary-color);">${alt.business_name || alt.seller_name}</strong>
+                                    <div style="font-size:0.85rem; color:#777;">Address: ${alt.seller_address || 'N/A'}, ${alt.seller_district}</div>
+                                </div>
+                                <div style="text-align:right;">
+                                    <div class="price-tag" style="font-size:1.15rem; margin-bottom:5px;">₹${alt.price}</div>
+                                    <a href="product-detail.html?id=${alt.id}" class="btn btn-outline btn-sm" style="font-size:0.8rem; padding: 4px 10px;">View Deal</a>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        altList.innerHTML = '<p style="color:#777; font-size:0.9rem;">No other sellers are offering this product at the moment.</p>';
+                    }
+                } catch(e) {
+                    console.error("Failed to load alternatives", e);
+                }
+
+                // Handle Auth State
+                const role = localStorage.getItem('role');
+                const actionDiv = document.getElementById('action-buttons');
+                
+                if (role === 'CUSTOMER') {
+                    actionDiv.innerHTML = `
+                        <button class="btn btn-primary" onclick="addToCart(${p.id}, false)">Add to Cart</button>
+                        <button class="btn btn-secondary" onclick="addToCart(${p.id}, true)">Buy Now</button>
+                    `;
+                } else if (role === 'SELLER') {
+                    actionDiv.innerHTML = `<p style="color: var(--danger)">Login as Customer to purchase.</p>`;
+                } else {
+                    actionDiv.innerHTML = `
+                        <a href="customer-login.html" class="btn btn-primary">Login to Purchase</a>
+                    `;
+                }
+
+                // Show cart if customer
+                if(role === 'CUSTOMER') {
+                    document.getElementById('nav-cart').style.display = 'inline-block';
+                    fetchCartCount();
+                }
+
+            } catch(e) {
+                console.error(e);
+            }
+        });
+
+        function changeQty(delta) {
+            const input = document.getElementById('qty-input');
+            let val = parseInt(input.value) + delta;
+            const max = parseInt(input.getAttribute('max'));
+            if(val < 1) val = 1;
+            if(val > max) val = max;
+            input.value = val;
+        }
+
+        async function addToCart(productId, redirect) {
+            const qty = parseInt(document.getElementById('qty-input').value);
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch(`${API_BASE}/cart`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ product_id: productId, quantity: qty })
+                });
+                if(res.ok) {
+                    if(redirect) {
+                        window.location.href = 'cart.html';
+                    } else {
+                        alert('Product added to cart!');
+                        fetchCartCount();
+                    }
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Failed to add to cart');
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        async function fetchCartCount() {
+            const token = localStorage.getItem('token');
+            if(!token) return;
+            try {
+                const res = await fetch(`${API_BASE}/cart`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const cart = await res.json();
+                if(Array.isArray(cart)) {
+                    document.getElementById('cart-count').innerText = cart.length;
+                }
+            } catch(e) {}
+        }
+    </script>
+</body>
+</html>

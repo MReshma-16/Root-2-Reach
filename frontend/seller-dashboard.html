@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard - Root 2 Reach</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Mukta+Malar:wght@400;600;800&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .add-btn { background: var(--primary-color); color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .close-btn { float: right; cursor: pointer; font-size: 1.5rem; font-weight: bold; }
+        .del-btn { background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-text">Root 2 Reach</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" data-i18n="home">Home</a>
+            <a href="#" id="logout-btn" data-i18n="logout">Logout</a>
+        </div>
+        <div class="lang-switch">
+            <button id="lang-btn">தமிழ் | EN</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h2><span data-i18n="welcome">Welcome</span>, <span id="user-name"></span></h2>
+            <button class="add-btn" id="open-add-modal" data-i18n="add_product">Add Product</button>
+        </div>
+
+        <section class="section">
+            <h2 class="section-title" data-i18n="my_products">My Products</h2>
+            <div class="grid" id="seller-products-grid">
+                <!-- Products injected via JS -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="add-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-modal">&times;</span>
+            <h3 data-i18n="add_product">Add Product</h3>
+            <form id="add-product-form">
+                <div class="form-group" style="display:flex;gap:10px;">
+                    <div style="flex:1;">
+                        <label>Product Name (English)</label>
+                        <input type="text" id="p-name" required placeholder="e.g. Kanchipuram Silk Saree">
+                    </div>
+                    <div style="flex:1;">
+                        <label>Product Name (Tamil)</label>
+                        <input type="text" id="p-name-ta" placeholder="e.g. காஞ்சிபுரம் பட்டு சேலை">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description (English)</label>
+                    <textarea id="p-desc" required placeholder="Describe your product..." rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Description (Tamil)</label>
+                    <textarea id="p-desc-ta" placeholder="பொருளைப் பற்றி விவரிக்கவும்..." rows="3"></textarea>
+                </div>
+                <div class="form-group" style="display:flex;gap:10px;">
+                    <div style="flex:1;">
+                        <label>Price (₹)</label>
+                        <input type="number" id="p-price" required min="1" placeholder="e.g. 1500">
+                    </div>
+                    <div style="flex:1;">
+                        <label>Quantity</label>
+                        <input type="number" id="p-quantity" required min="1" placeholder="e.g. 10">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>District</label>
+                    <select id="p-district" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="p-category" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Product Image</label>
+                    <input type="file" id="p-image" accept="image/*">
+                </div>
+                <button type="submit" class="add-btn" style="width:100%">Save Product</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/dashboard.js"></script>
+</body>
+</html>

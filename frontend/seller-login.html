@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Root 2 Reach – Seller Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Mukta+Malar:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="lang-en">
+  <nav class="navbar">
+    <div class="logo-text">Root 2 Reach</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+    </ul>
+    <button id="lang-btn" class="lang-toggle">TA</button>
+  </nav>
+
+  <section class="auth-container">
+    <h2 id="title">Seller Login</h2>
+    <div id="error-msg" class="error-msg" style="display:none;color:red;margin-bottom:10px;"></div>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email" id="lbl-email">Email</label>
+        <input type="email" id="email" required />
+      </div>
+      <div class="form-group">
+        <label for="password" id="lbl-password">Password</label>
+        <input type="password" id="password" required />
+      </div>
+      <button type="submit" class="auth-btn" id="login-btn">Login</button>
+    </form>
+    <p id="switch-msg">Don't have a seller account? <a href="seller-register.html" id="register-link">Register as Seller</a></p>
+  </section>
+
+  <script>
+    const translations = {
+      en: {
+        title: "Seller Login",
+        email: "Email",
+        password: "Password",
+        login: "Login",
+        switchMsg: "Don't have a seller account?",
+        register: "Register as Seller"
+      },
+      ta: {
+        title: "விற்பனர் உள்நுழைவு",
+        email: "மின்னஞ்சல்",
+        password: "கடவுச்சொல்",
+        login: "உள்நுழை",
+        switchMsg: "விற்பனர் கணக்கு இல்லையா?",
+        register: "விற்பனராக பதிவு செய்ய"
+      }
+    };
+    const langBtn = document.getElementById('lang-btn');
+    const setLang = (lang) => {
+      document.body.className = lang === 'ta' ? 'lang-ta' : 'lang-en';
+      const t = translations[lang];
+      document.getElementById('title').innerText = t.title;
+      document.getElementById('lbl-email').innerText = t.email;
+      document.getElementById('lbl-password').innerText = t.password;
+      document.getElementById('login-btn').innerText = t.login;
+      document.getElementById('switch-msg').innerHTML = `${t.switchMsg} <a href="seller-register.html">${t.register}</a>`;
+    };
+    langBtn.addEventListener('click', () => {
+      const newLang = document.body.classList.contains('lang-ta') ? 'en' : 'ta';
+      setLang(newLang);
+    });
+    setLang('en');
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      try {
+        const resp = await fetch('http://localhost:3000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, role: 'SELLER' })
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.message || 'Login failed');
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('role', 'SELLER');
+        localStorage.setItem('userName', data.user.name);
+        window.location.href = 'seller-dashboard.html';
+      } catch (err) {
+        const errDiv = document.getElementById('error-msg');
+        errDiv.textContent = err.message;
+        errDiv.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
