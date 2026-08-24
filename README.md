@@ -109,3 +109,64 @@ For example:
 [ Product Image ]
         ↓
 Name • Description • Price
+
+🌐 Tamil + English Support
+
+Root 2 Reach supports both:
+
+🇬🇧 English
+
+and
+
+🇮🇳 தமிழ் (Tamil)
+
+Users can switch between languages using the language selector.
+
+This makes the platform easier to use for local artisans and customers.
+
+🏗️ System Architecture
+                    ROOT 2 REACH
+                         │
+              ┌──────────┴──────────┐
+              │                     │
+           BUYER                  SELLER
+              │                     │
+        Search Products        Add Products
+              │                     │
+        View Products          Product Details
+              │                     │
+           Purchase             Set Price
+              │                     │
+              └──────────┬──────────┘
+                         │
+                    REST API
+                         │
+                  Node.js Backend
+                         │
+                    SQLite Database
+
+☁️ Deployment
+
+The project can be deployed using:
+
+GitHub
+   ↓
+Render
+   ↓
+Frontend + Backend
+   ↓
+Online Website
+
+🎨 Design Highlights
+
+Root 2 Reach uses a Tamil-inspired visual style:
+
+🟠 Warm traditional colors
+🟡 Golden highlights
+🟤 Earth-inspired tones
+🪔 Cultural visual elements
+🌾 Traditional product imagery
+🔤 Noto Sans Tamil support
+📱 Responsive interface
+
+The design aims to combine Tamil cultural identity with modern e-commerce.
