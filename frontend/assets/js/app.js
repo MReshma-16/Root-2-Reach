@@ -1,4 +1,6 @@
-const API_BASE = 'https://root-2-reach.onrender.com/api';
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('devtunnels.ms'))
+    ? window.location.origin + '/api'
+    : 'https://root-2-reach.onrender.com/api';
 let currentLang = 'en';
 
 const translations = {

@@ -1,4 +1,6 @@
-const API_BASE = 'https://root-2-reach.onrender.com/api';
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('devtunnels.ms'))
+    ? window.location.origin + '/api'
+    : 'https://root-2-reach.onrender.com/api';
 let currentLang = localStorage.getItem('lang') || 'en';
 const token = localStorage.getItem('token');
 const role = localStorage.getItem('role');
@@ -34,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (window.location.pathname.includes('buyer')) {
-        if (role !== 'BUYER') window.location.href = 'seller-dashboard.html';
+        if (role !== 'CUSTOMER') window.location.href = 'seller-dashboard.html';
         initBuyerDashboard();
     } else if (window.location.pathname.includes('seller')) {
         if (role !== 'SELLER') window.location.href = 'buyer-dashboard.html';
